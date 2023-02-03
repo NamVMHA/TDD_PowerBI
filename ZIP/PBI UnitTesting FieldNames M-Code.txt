@@ -1,0 +1,8 @@
+let
+    Source = Table.FromList({
+        [OrderBy = 1, UnitTests = "Target Value"],
+        [OrderBy = 2, UnitTests = "Calculated Value"],
+        [OrderBy = 3, UnitTests = "Test Result"]
+    }, Record.FieldValues, {"OrderBy", "UnitTests"})
+in
+    Source

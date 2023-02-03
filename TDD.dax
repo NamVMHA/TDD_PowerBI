@@ -1,0 +1,111 @@
+﻿EVALUATE
+ADDCOLUMNS(
+    UNION(
+        ROW(
+            "Test Name", "CRX5",
+            "Expected Result",
+                CALCULATE(
+                    VALUES( 'TDD-output_expected'[Target] ),
+                    'TDD-output_expected'[ID] = 1
+                ),
+            "Actual Result", ROUND( [CalculatedValues 001], 4 )
+        ),
+        ROW(
+            "Test Name", "CR34",
+            "Expected Result", 1.0,
+            "Actual Result",
+                VAR StartPeriod =
+                    MIN( 'Calendar'[Date] )
+                VAR EndPeriod =
+                    MAX( 'Calendar'[Date] )
+                VAR LeadGroupMaxRange =
+                    //group by lead id by MAX time range
+                    ADDCOLUMNS(
+                        VALUES( 'TDD-FACT-permutatedStatus'[lead_id] ),
+                        "max_range",
+                            CALCULATE(
+                                MAX( 'TDD-FACT-permutatedStatus'[timeRange] ),
+                                'TDD-FACT-permutatedStatus'[startTime] >= StartPeriod,
+                                'TDD-FACT-permutatedStatus'[endTime] <= EndPeriod
+                            )
+                    )
+                VAR L34 =
+                    CALCULATE(
+                        COUNTROWS( VALUES( 'TDD-FACT-permutatedStatus'[lead_id] ) ),
+                        TREATAS(
+                            LeadGroupMaxRange,
+                            'TDD-FACT-permutatedStatus'[lead_id],
+                            'TDD-FACT-permutatedStatus'[timeRange]
+                        ),
+                        'TDD-FACT-permutatedStatus'[statusBefore]
+                            IN {
+                            "L1A",
+                            "L1B",
+                            "L1C",
+                            "L3A",
+                            "L3B",
+                            "L3C",
+                            "L3D",
+                            "L2A",
+                            "L2B",
+                            "L2C",
+                            "L2D",
+                            "L2G",
+                            "L2E",
+                            "L2F",
+                            "L2X"
+                        },
+                        'TDD-FACT-permutatedStatus'[statusAfter]
+                            IN { "L4A", "L4B", "L4BX", "L5A", "L5B", "L5C", "L5D" },
+                        'TDD-FACT-permutatedStatus'[startTime] >= StartPeriod,
+                        'TDD-FACT-permutatedStatus'[endTime] <= EndPeriod
+                    )
+                VAR L3 =
+                    CALCULATE(
+                        // lead max time range and status before is L1 and in filter time
+                        COUNTROWS(
+                            VALUES( 'TDD-FACT-permutatedStatus'[lead_id] )
+                        ),
+                        TREATAS(
+                            LeadGroupMaxRange,
+                            'TDD-FACT-permutatedStatus'[lead_id],
+                            'TDD-FACT-permutatedStatus'[timeRange]
+                        ),
+                        'TDD-FACT-permutatedStatus'[statusBefore]
+                            IN {
+                            "L1A",
+                            "L1B",
+                            "L1C",
+                            "L3A",
+                            "L3B",
+                            "L3C",
+                            "L3D",
+                            "L2A",
+                            "L2B",
+                            "L2C",
+                            "L2D",
+                            "L2G",
+                            "L2E",
+                            "L2F",
+                            "L2X"
+                        },
+                        'TDD-FACT-permutatedStatus'[statusAfter]
+                            IN { "L3A", "L3B", "L3C", "L3D", "L4A", "L4B", "L4BX", "L5A", "L5B", "L5C", "L5D" },
+                        'TDD-FACT-permutatedStatus'[startTime] >= StartPeriod,
+                        'TDD-FACT-permutatedStatus'[endTime] <= EndPeriod
+                    )
+                RETURN
+                    L34 / L3
+        ),
+        ROW(
+            "Test Name", "CR13",
+            "Expected Result",
+                CALCULATE(
+                    VALUES( 'TDD-output_expected'[Target] ),
+                    'TDD-output_expected'[ID] = 3
+                ),
+            "Actual Result", [CalculatedValues 003]
+        )
+    ),
+    "Valid", IF( [Expected Result] <> [Actual Result], "Fail", "Pass" )
+)

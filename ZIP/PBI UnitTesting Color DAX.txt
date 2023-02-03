@@ -1,0 +1,31 @@
+Unit Testing Framework Colors = 
+
+/* Instructions
+    Unit Testing Framework is defined as a cross join between the TestFieldList (generic) and the TestMeasureList (specific to model).
+    Each Measure to test requires a UnitTestComputation measure to go with it.
+
+    This colors measure is for the conditional formatting of the matrix.
+
+    The form is as follows:
+    The Target Values have been inputted with the Measure name associated with it in the TestValues data table.
+    The Calculated Values are defined as specific Measures by YOU (and to be input below)
+    The Result is the Target Value minus the Calculated Value. These need to be within the variance range to pass the test.
+*/
+
+-- Pass / Fail Color Definitions
+VAR _fail = "#FF0000" // red
+VAR _pass = "#00FF00" // green
+
+// Get current Measure name from Matrix.
+VAR _msr = SELECTEDVALUE(_TestValues[ID])
+VAR _tol = SELECTEDVALUE(_TestValues[Variance])
+
+VAR _calc = // Provide each pair of combinations that matches the Measure ID to the Unit Test Measure.
+    SWITCH(
+        _msr
+//        , 1, [UT 001]
+        , -1 // Any non-implemented tests will show up as fails for now.
+    )
+
+VAR _result = IF(AND(_calc <= _tol, _calc >= -_tol), _pass, _fail)
+RETURN _result

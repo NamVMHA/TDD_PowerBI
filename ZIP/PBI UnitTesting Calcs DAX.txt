@@ -1,0 +1,28 @@
+Unit Testing Framework Results = 
+
+/* Instructions
+    Unit Testing Framework is defined as a cross join between the TestFieldList (generic) and the TestMeasureList (specific to model).
+    Each Measure to test requires a UnitTestComputation measure to go with it.
+
+    This measure generates the outcome for each cell.
+
+    The form is as follows:
+    The Target Values have been inputted with the Measure name associated with it in the UnitTestValues data table.
+    The Calculated Values are defined as specific Measures by YOU (and to be input below)
+    The Result is the Target Value minus the Calculated Value. These need to fall within variance levels to pass the test.
+*/
+
+// Get current Measure name from Matrix.
+VAR _msr = SELECTEDVALUE(_TestValues[ID])
+// Get current Field Type from Matrix.
+VAR _fld = SELECTEDVALUE(TestFieldList[UnitTests])
+
+VAR _calc = // Each Measure has 3 outputs to provide within the nested SWITCH. I know, it's ugly.
+    SWITCH(
+        _msr
+//        , 1, SWITCH(_fld, "Target Value", [TV 001], "Calculated Value", [CV 001], "Result", [UT 001])
+//        , 1, SWITCH(_fld, "Target Value", [TV], "Calculated Value", [CV 001], "Result", [UT 001]) // Alternate approach.
+        , -1 // Any non-implemented tests will show up as -1
+    )
+
+RETURN _calc
